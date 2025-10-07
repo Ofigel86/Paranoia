@@ -9,9 +9,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.Material;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
-import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.Event;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -23,7 +21,6 @@ import java.io.*;
 
 /**
  * MLModule - lightweight in-plugin collector + simple heuristic whitelist model with persistence and EMA smoothing.
- * Collects block place/break/pickup events and computes Top-K allowed materials.
  */
 public class MLModule implements Listener {
     private final JavaPlugin plugin;
@@ -45,7 +42,6 @@ public class MLModule implements Listener {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
         loadPersisted();
         plugin.getLogger().info("MLModule enabled (collector + EMA + persistence).");
-        // schedule recompute every configured seconds (async)
         long seconds = plugin.getConfig().getLong("ml.whitelist.update-interval-seconds", 300L);
         new BukkitRunnable() {
             @Override
@@ -61,24 +57,24 @@ public class MLModule implements Listener {
     public void onDisable() {
         enabled.set(false);
         persistCounts();
-        plugin.getLogger().info("MLModule disabled."); 
+        plugin.getLogger().info("MLModule disabled.");
     }
 
-    @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlace(BlockPlaceEvent ev) {
         if (!enabled.get()) return;
         if (ev.getPlayer().getGameMode().name().equalsIgnoreCase("CREATIVE") && plugin.getConfig().getBoolean("ml.whitelist.exclude-creative", true)) return;
         addSample(ev.getBlockPlaced().getType(), 1.0);
     }
 
-    @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBreak(BlockBreakEvent ev) {
         if (!enabled.get()) return;
         if (ev.getPlayer().getGameMode().name().equalsIgnoreCase("CREATIVE") && plugin.getConfig().getBoolean("ml.whitelist.exclude-creative", true)) return;
         addSample(ev.getBlock().getType(), 1.0);
     }
 
-    @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPickup(PlayerPickupItemEvent ev) {
         if (!enabled.get()) return;
         addSample(ev.getItem().getType(), 0.5);
@@ -159,7 +155,7 @@ public class MLModule implements Listener {
         }
     }
 
-    // Public API: does this material appear allowed?
+    // Public API
     public boolean isAllowed(Material m) {
         return allowed.contains(m);
     }
@@ -168,12 +164,11 @@ public class MLModule implements Listener {
         return allowed;
     }
 
-    // Admin helper: get top entries as map for debug/inspection
     public Map<Material, Double> getTopMap(int n) {
         List<Map.Entry<Material, Double>> list = new ArrayList<>(emaCounts.entrySet());
         list.sort((a, b) -> Double.compare(b.getValue(), a.getValue()));
         Map<Material, Double> out = new LinkedHashMap<>();
-        int i=0;
+        int i = 0;
         for (Map.Entry<Material, Double> e : list) {
             if (i++ >= n) break;
             out.put(e.getKey(), e.getValue());
