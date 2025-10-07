@@ -77,7 +77,7 @@ public class MLModule implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPickup(PlayerPickupItemEvent ev) {
         if (!enabled.get()) return;
-        addSample(ev.getItem().getType(), 0.5);
+        addSample(ev.getItem().getItemStack().getType(), 0.5);
     }
 
     private void addSample(Material m, double weight) {
