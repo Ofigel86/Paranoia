@@ -1,0 +1,36 @@
+name: ParanoiaPlus
+version: 1.0.0
+main: com.sana.paranoiaplus.ParanoiaPlus
+api-version: 1.16
+author: Sana
+depend: [ProtocolLib]
+commands:
+  shadow:
+    description: Shadow commands (shadow.start/stop/reveal)
+    usage: /<command> <start|once|stop|reveal|reload> [player]
+    permission: paranoiaplus.shadow
+  pmob:
+    description: Paranoia mobs admin
+    usage: /pmob <spawn|reload> ...
+    permission: paranoiaplus.mobs
+  fake:
+    description: Fake-bot control
+    usage: /fake <spawn|remove|info|follow|task|mode>
+    permission: paranoiaplus.fake
+  paranoia:
+    description: Global Paranoia controls
+    usage: /paranoia <toggle|reload>
+    permission: paranoiaplus.admin
+permissions:
+  paranoiaplus.admin:
+    description: Full admin for ParanoiaPlus
+    default: op
+  paranoiaplus.shadow:
+    description: Manage shadow module
+    default: op
+  paranoiaplus.mobs:
+    description: Manage paranoia mobs
+    default: op
+  paranoiaplus.fake:
+    description: Manage fake bots
+    default: op

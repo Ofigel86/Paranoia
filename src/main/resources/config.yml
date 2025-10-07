@@ -1,0 +1,93 @@
+global:
+  disable-in-creative: true
+  disable-in-spectator: true
+  min-tps: 18.0
+  worlds-allow: []
+
+shadow:
+  enabled: true
+  scenes: [corner, doorway, narrow-gap, high, inventory]
+  fov-deg: 30
+  fov-margin-deg: 8
+  require-los: true
+  los-samples: 3
+  distance-min: 20
+  distance-max: 40
+  min-light-level: 7
+  max-y: 60
+  require-alone-radius: 40
+  head-track-lag-ms: 150
+  retreat-enabled: true
+  retreat-cover-depth: 1.2
+  cooldown-seconds: [300, 600]
+  actionbar-messages: ["i see you", "help"]
+  show-actionbar-on-spawn: true
+  dev-safe: []
+
+mobs:
+  replace-natural-spawns: true
+  replace-chance: 0.25
+  max-controlled-per-world: 15
+  any-player-looks: true
+  fov-deg: 30
+  require-los: true
+  types:
+    zombie: {enabled: true, keep-distance: [4,7], allow-attack: false}
+    skeleton: {enabled: true, allow-attack: false}
+    spider: {enabled: true, prefer-above: true}
+    creeper: {enabled: true, no-ignite: true, keep-distance: [6,9]}
+    enderman: {enabled: true, teleport-away-on-look: true}
+    phantom: {enabled: true, only-night: true}
+    silverfish: {enabled: true, burrow-on-look: true}
+    drowned: {enabled: true, water-only: true}
+    witherskeleton: {enabled: true, fortress-only: true, allow-attack: false}
+
+fake:
+  enabled: true
+  max-bots: 1
+  default-mode: real
+  visible-to: target
+  skin-from: "<playerName|uuid>"
+  movement:
+    tick-interval: 2
+    speed-walk: 0.18
+    speed-sneak: 0.12
+    unstuck: true
+  nav:
+    mode: astar
+    astar-max-nodes: 1500
+  tasks-enabled:
+    gatherwood: true
+    craft: true
+    gatherstone: true
+    build: true
+  build:
+    blueprint: hut_5x5
+    real-place-rate: 30
+    area-scan-radius: 8
+
+ml:
+  whitelist:
+    enabled: true
+    scope: global
+    update-interval-seconds: 300
+    min-samples: 50
+    top-k: 20
+    threshold: 0.55
+    ema-alpha: 0.3
+    hard-deny:
+      categories: [container, redstone, portal, fluid, spawner, ore, explosive, unobtainable]
+      materials: [diamond_block, netherite_block, beacon, end_crystal]
+    seed-allow: [oak_planks, spruce_planks, cobblestone, stone, stone_bricks, glass, oak_stairs, cobblestone_stairs, oak_slab]
+    exclude-creative: true
+  clone:
+    enabled: true
+    mode: hybrid
+    record:
+      sample-rate-tps: 10
+      max-session-min: 60
+      include-players: []
+    inference:
+      interval-ticks: 10
+      epsilon: 0.05
+      fallback-on-low-tps: true
