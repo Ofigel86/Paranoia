@@ -1,120 +1,114 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-             http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.sana</groupId>
-  <artifactId>paranoiaplus</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
-  <packaging>jar</packaging>
+    <!-- координаты вашего плагина -->
+    <groupId>com.example</groupId>
+    <artifactId>my-paper-plugin</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <name>MyPaperPlugin</name>
+    <description>Пример плагина для Paper 1.16.5 с поддержкой ProtocolLib</description>
+    <!-- сборка в jar -->
+    <packaging>jar</packaging>
 
-  <name>ParanoiaPlus</name>
-  <properties>
-    <java.version>11</java.version>
-    <maven.compiler.source>${java.version}</maven.compiler.source>
-    <maven.compiler.target>${java.version}</maven.compiler.target>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
+    <!-- зависимости -->
+    <dependencies>
+        <!-- Paper API 1.16.5; используется как provided, чтобы не включать в jar -->
+        <dependency>
+            <groupId>com.destroystokyo.paper</groupId>
+            <artifactId>paper-api</artifactId>
+            <version>1.16.5-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- ProtocolLib 5.0.0 (совместим с Paper 1.16.5); версия хранится в репозитории Lumine Releases -->
+        <dependency>
+            <groupId>com.comphenix.protocol</groupId>
+            <artifactId>ProtocolLib</artifactId>
+            <version>5.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 
-  <!-- Репозитории, где находятся paper & protocollib и альтернативы -->
-  <repositories>
-    <!-- Paper (официальное) -->
-    <repository>
-      <id>papermc</id>
-      <name>papermc</name>
-      <url>https://repo.papermc.io/repository/maven-public/</url>
-      <releases><enabled>true</enabled></releases>
-      <snapshots><enabled>true</enabled></snapshots>
-    </repository>
+    <!-- репозитории -->
+    <repositories>
+        <!-- Зеркало Paper 1.16.5; содержит paper-api 1.16.5-R0.1-SNAPSHOT -->
+        <repository>
+            <id>aikar</id>
+            <url>https://repo.aikar.co/content/groups/aikar/</url>
+        </repository>
+        <!-- Второй источник Paper на случай недоступности aikar (необязательно) -->
+        <repository>
+            <id>minebench</id>
+            <url>https://repo.minebench.de/</url>
+        </repository>
+        <!-- Публичный репозиторий Spigot, необходим для транзитивных зависимостей Paper -->
+        <repository>
+            <id>spigotmc-public</id>
+            <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
+        </repository>
+        <!-- Sonatype OSS — общий репозиторий для многих библиотек -->
+        <repository>
+            <id>sonatype</id>
+            <url>https://oss.sonatype.org/content/groups/public/</url>
+        </repository>
+        <!-- Репозиторий для ProtocolLib 5.0.0 -->
+        <repository>
+            <id>lumine-releases</id>
+            <url>https://mvn.lumine.io/repository/maven-public/</url>
+        </repository>
+    </repositories>
 
-    <!-- CodeMC public (часто содержит ProtocolLib под com.comphenix.protocol) -->
-    <repository>
-      <id>codemc</id>
-      <name>CodeMC Public</name>
-      <url>https://repo.codemc.io/repository/maven-public/</url>
-      <releases><enabled>true</enabled></releases>
-      <snapshots><enabled>true</enabled></snapshots>
-    </repository>
-
-    <!-- dmulloy2 (ProtocolLib author repo) -->
-    <repository>
-      <id>dmulloy2</id>
-      <name>dmulloy2 repo</name>
-      <url>https://repo.dmulloy2.net/nexus/repository/public/</url>
-      <releases><enabled>true</enabled></releases>
-      <snapshots><enabled>true</enabled></snapshots>
-    </repository>
-
-    <!-- JitPack (альтернатива, многие версии ProtocolLib доступны тут) -->
-    <repository>
-      <id>jitpack.io</id>
-      <url>https://jitpack.io</url>
-      <releases><enabled>true</enabled></releases>
-      <snapshots><enabled>false</enabled></snapshots>
-    </repository>
-
-    <!-- Maven Central на всякий случай -->
-    <repository>
-      <id>central</id>
-      <name>Maven Central</name>
-      <url>https://repo.maven.apache.org/maven2</url>
-    </repository>
-  </repositories>
-
-  <dependencies>
-    <!-- Paper API для 1.16.5 -->
-    <dependency>
-      <groupId>io.papermc.paper</groupId>
-      <artifactId>paper-api</artifactId>
-      <version>1.16.5-R0.1-SNAPSHOT</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <!-- ProtocolLib: используем проверенную координату; сделано provided (сервер должен иметь плагин) -->
-    <dependency>
-      <groupId>com.comphenix.protocol</groupId>
-      <artifactId>ProtocolLib</artifactId>
-      <version>4.6.0</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <!-- JSON -->
-    <dependency>
-      <groupId>com.google.code.gson</groupId>
-      <artifactId>gson</artifactId>
-      <version>2.10.1</version>
-    </dependency>
-  </dependencies>
-
-  <build>
-    <plugins>
-      <!-- Compiler -->
-      <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.11.0</version>
-        <configuration>
-          <source>${java.version}</source>
-          <target>${java.version}</target>
-        </configuration>
-      </plugin>
-
-      <!-- Shade (если нужен uber-jar) -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>3.4.1</version>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals><goal>shade</goal></goals>
-            <configuration>
-              <createDependencyReducedPom>false</createDependencyReducedPom>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
+    <build>
+        <sourceDirectory>src/main/java</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+            </resource>
+        </resources>
+        <plugins>
+            <!-- Настройка компилятора для Java 11 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.10.1</version>
+                <configuration>
+                    <release>11</release>
+                </configuration>
+            </plugin>
+            <!-- Плагин jar: помещает plugin.yml в корень jar -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <!-- Плагин shade (необязательно, если не нужно встраивать сторонние библиотеки) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.4.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <!-- Исключаем зависимости со scope provided -->
+                            <minimizeJar>true</minimizeJar>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>
