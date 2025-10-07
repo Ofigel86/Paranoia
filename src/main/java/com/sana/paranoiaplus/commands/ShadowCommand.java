@@ -51,8 +51,8 @@ public class ShadowCommand implements CommandExecutor {
                 return true;
             }
         } catch (Exception ex) {
-            sender.sendMessage("Command error: " + ex.getMessage());
-            throw new CommandException(ex);
+            sender.sendMessage("Command error: " + String.valueOf(ex.getMessage()));
+            throw new CommandException(String.valueOf(ex.getMessage()));
         }
         return false;
     }
