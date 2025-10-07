@@ -1,97 +1,70 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- координаты вашего плагина -->
-    <groupId>com.example</groupId>
-    <artifactId>my-paper-plugin</artifactId>
+    <groupId>com.sana</groupId>
+    <artifactId>paranoiaplus</artifactId>
     <version>1.0.0-SNAPSHOT</version>
-    <name>MyPaperPlugin</name>
-    <description>Пример плагина для Paper 1.16.5 с поддержкой ProtocolLib</description>
-    <!-- сборка в jar -->
     <packaging>jar</packaging>
+    <name>ParanoiaPlus</name>
 
-    <!-- зависимости -->
+    <properties>
+        <java.version>1.8</java.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+        <paper.version>1.16.5-R0.1-SNAPSHOT</paper.version>
+        <protocol.version>4.6.0</protocol.version>
+    </properties>
+
+    <repositories>
+        <repository>
+            <id>papermc</id>
+            <url>https://repo.papermc.io/repository/maven-public/</url>
+        </repository>
+        <repository>
+            <id>dmulloy2</id>
+            <url>https://repo.dmulloy2.net/nexus/repository/public/</url>
+        </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
     <dependencies>
-        <!-- Paper API 1.16.5; используется как provided, чтобы не включать в jar -->
+        <!-- Paper API -->
         <dependency>
-            <groupId>com.destroystokyo.paper</groupId>
+            <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
-            <version>1.16.5-R0.1-SNAPSHOT</version>
+            <version>${paper.version}</version>
             <scope>provided</scope>
         </dependency>
-        <!-- ProtocolLib 5.0.0 (совместим с Paper 1.16.5); версия хранится в репозитории Lumine Releases -->
+
+        <!-- ProtocolLib -->
         <dependency>
             <groupId>com.comphenix.protocol</groupId>
             <artifactId>ProtocolLib</artifactId>
-            <version>5.0.0</version>
+            <version>${protocol.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
 
-    <!-- репозитории -->
-    <repositories>
-        <!-- Зеркало Paper 1.16.5; содержит paper-api 1.16.5-R0.1-SNAPSHOT -->
-        <repository>
-            <id>aikar</id>
-            <url>https://repo.aikar.co/content/groups/aikar/</url>
-        </repository>
-        <!-- Второй источник Paper на случай недоступности aikar (необязательно) -->
-        <repository>
-            <id>minebench</id>
-            <url>https://repo.minebench.de/</url>
-        </repository>
-        <!-- Публичный репозиторий Spigot, необходим для транзитивных зависимостей Paper -->
-        <repository>
-            <id>spigotmc-public</id>
-            <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
-        </repository>
-        <!-- Sonatype OSS — общий репозиторий для многих библиотек -->
-        <repository>
-            <id>sonatype</id>
-            <url>https://oss.sonatype.org/content/groups/public/</url>
-        </repository>
-        <!-- Репозиторий для ProtocolLib 5.0.0 -->
-        <repository>
-            <id>lumine-releases</id>
-            <url>https://mvn.lumine.io/repository/maven-public/</url>
-        </repository>
-    </repositories>
-
     <build>
-        <sourceDirectory>src/main/java</sourceDirectory>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>false</filtering>
-            </resource>
-        </resources>
         <plugins>
-            <!-- Настройка компилятора для Java 11 -->
+            <!-- Maven Compiler Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.10.1</version>
                 <configuration>
-                    <release>11</release>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
                 </configuration>
             </plugin>
-            <!-- Плагин jar: помещает plugin.yml в корень jar -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.3.0</version>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <addClasspath>true</addClasspath>
-                        </manifest>
-                    </archive>
-                </configuration>
-            </plugin>
-            <!-- Плагин shade (необязательно, если не нужно встраивать сторонние библиотеки) -->
+
+            <!-- Maven Shade Plugin for Uber JAR -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -103,8 +76,8 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <!-- Исключаем зависимости со scope provided -->
-                            <minimizeJar>true</minimizeJar>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <finalName>paranoiaplus-1.0.0-SNAPSHOT-jar-with-dependencies</finalName>
                         </configuration>
                     </execution>
                 </executions>
