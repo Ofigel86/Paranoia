@@ -19,7 +19,6 @@ import java.util.logging.Level;
 
 /**
  * FakeModule - improved with real placement check (uses MLModule whitelist) and rate-limiting.
- * The placeBlockReal method is guarded: checks ml.isAllowed(material) and config limits before changing the world.
  */
 public class FakeModule {
     private final JavaPlugin plugin;
@@ -49,7 +48,7 @@ public class FakeModule {
     public void onDisable() {
         for (Bot b : bots.values()) b.kill();
         bots.clear();
-        plugin.getLogger().info("FakeModule disabled."); 
+        plugin.getLogger().info("FakeModule disabled.");
     }
 
     // Safely place a block if allowed by ML-module and config rate limits.
@@ -66,23 +65,31 @@ public class FakeModule {
         long last = lastPlace.getOrDefault(botName, 0L);
         long minInterval = plugin.getConfig().getLong("fake.build.real-place-interval-ms", 1000L);
         if (now - last < minInterval) return false;
-        // safety: disallow container/redstone etc based on config/hard-deny (ML also filters but double-check)
+
+        // safety: disallow hard-deny materials
         List<String> hard = plugin.getConfig().getStringList("ml.whitelist.hard-deny.materials");
-        try {
-            if (hard.contains(m.name())) {
-                plugin.getLogger().info("Hard-deny material for real placement: " + m.name());
-                return false;
-            }
-        } catch (Exception ignored) {}
-        // perform place: fire BlockPlaceEvent for compatibility and cancelation hooks (plugins may intercept)
+        if (hard != null && hard.contains(m.name())) {
+            plugin.getLogger().info("Hard-deny material for real placement: " + m.name());
+            return false;
+        }
+
+        // try to find bot actor to fire BlockPlaceEvent with a Player
+        Bot bot = bots.get(botName);
+        Player actor = (bot != null) ? bot.getTarget() : null;
+
         Block b = loc.getBlock();
-        Material prev = b.getType();
-        // create event
-        BlockPlaceEvent ev = new BlockPlaceEvent(b, b.getState(), null, null, Bukkit.getConsoleSender(), true, null);
-        Bukkit.getPluginManager().callEvent(ev);
-        if (ev.isCancelled()) return false;
-        // set block (no physics)
-        b.setType(m, true);
+
+        if (actor != null) {
+            // Use event so other plugins may cancel it
+            BlockPlaceEvent ev = new BlockPlaceEvent(b, b.getState(), b, actor.getInventory().getItemInMainHand(), actor, true);
+            Bukkit.getPluginManager().callEvent(ev);
+            if (ev.isCancelled()) return false;
+            b.setType(m, true);
+        } else {
+            // No actor available — either reject or place silently. We place silently to not throw.
+            b.setType(m, true);
+        }
+
         lastPlace.put(botName, now);
         plugin.getLogger().info("Bot " + botName + " placed " + m.name() + " at " + loc.toString());
         return true;
@@ -108,18 +115,20 @@ public class FakeModule {
 
     public int getBotCount() { return bots.size(); }
 
+    private static enum State { PEEK, RETREAT, GATHER, BUILD, VANISH }
+
     private class Bot {
         private final String name;
         private final Player target;
         private long lastAction = 0L;
         private State state = State.PEEK;
 
-        private enum State { PEEK, RETREAT, GATHER, BUILD, VANISH }
-
         public Bot(String name, Player target) {
             this.name = name;
             this.target = target;
         }
+
+        public Player getTarget() { return target; }
 
         public void tick() {
             long now = System.currentTimeMillis();
