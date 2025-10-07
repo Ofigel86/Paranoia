@@ -1,0 +1,45 @@
+name: Build ParanoiaPlus
+
+# Запуск при пуше в main или вручную
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Шаг 1. Клонируем репозиторий
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Шаг 2. Устанавливаем JDK 11
+      - name: Set up JDK 11
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+          cache: maven
+
+      # Шаг 3. Кэшируем Maven зависимости
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-m2-
+
+      # Шаг 4. Собираем плагин
+      - name: Build with Maven
+        run: mvn clean package -DskipTests
+
+      # Шаг 5. Загружаем собранный JAR как артефакт
+      - name: Upload plugin JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: paranoia-plus-jar
+          path: target/paranoiaplus-1.0.0-SNAPSHOT-jar-with-dependencies.jar
