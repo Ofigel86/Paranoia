@@ -4,9 +4,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.concurrent.atomic.AtomicDouble;
-import java.util.logging.Level;
-
 /**
  * CoreModule - improved: provides reliable config access, TPS guard and helper utilities.
  */
@@ -21,7 +18,6 @@ public class CoreModule {
 
     public void onEnable() {
         plugin.getLogger().info("CoreModule enabled (improved).");
-        // Start TPS monitor
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -42,14 +38,18 @@ public class CoreModule {
         return getRecentTps() >= plugin.getConfig().getDouble("global.min-tps", 18.0);
     }
 
-    // Small inner helper for TPS monitoring (smoothed)
+    // Simple TPS monitor (smoothed)
     private static class TpsMonitor {
         private final double[] samples = new double[10];
         private int idx = 0;
         private boolean filled = false;
 
         public void sample() {
-            double tps = Bukkit.getServer().getTPS() != null ? Bukkit.getServer().getTPS()[0] : 20.0;
+            double tps = 20.0;
+            try {
+                double[] tpsArr = Bukkit.getServer().getTPS();
+                if (tpsArr != null && tpsArr.length > 0) tps = tpsArr[0];
+            } catch (Throwable ignored) {}
             samples[idx++] = tps;
             if (idx >= samples.length) { idx = 0; filled = true; }
         }
